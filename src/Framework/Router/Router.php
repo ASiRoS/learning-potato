@@ -6,34 +6,28 @@ use Framework\Router\Exceptions\NotFoundException;
 
 class Router
 {
-    private const DEFAULTS = [
-        'controller' => 'HomeController',
-        'action' => 'index'
-    ];
+    private $url;
+
+    public function __construct(string $url)
+    {
+        $this->url = $url;
+    }
 
     /**
+     * @param RouteCollection $routes
      * @throws NotFoundException
      */
-    public function __construct(string $uri)
+    public function match(RouteCollection $routes): void
     {
-        $base = explode('/', $uri);
-        $base = array_filter($base);
-
-        $controller = $base[1] ?? self::DEFAULTS['controller'];
-        $controller = 'App\Controllers\\' . $controller;
-
-        $action = $base[2] ?? self::DEFAULTS['action'];
-
-        if(!class_exists($controller)) {
-            throw new NotFoundException('Undefined controller was invoked');
+        foreach($routes->getRoutes() as $route) {
+            if(
+                in_array($_SERVER['REQUEST_METHOD'], $route->getMethods()) &&
+                $route->getUrl() === $_SERVER['REQUEST_URI']
+            ) {
+                call_user_func($route->getAction());
+            } else {
+                throw new NotFoundException();
+            }
         }
-
-        $controller = new $controller();
-
-        if(!method_exists($controller, $action)) {
-            throw new NotFoundException('Undefined action was invoked');
-        }
-
-        $controller->$action();
     }
 }

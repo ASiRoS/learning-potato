@@ -4,5 +4,11 @@
       "App\\": "src/App/",
       "Framework\\": "src/Framework"
     }
+  },
+  "scripts": {
+    "serve": "php -S localhost:8080 -t public"
+  },
+  "require": {
+    "symfony/var-dumper": "^4.2"
   }
 }
